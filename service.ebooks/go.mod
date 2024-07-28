@@ -1,4 +1,4 @@
-module WUR/service.ebooks
+module github.com/temaxuck/WUR/service.ebooks
 
 go 1.22.5
 
