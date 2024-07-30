@@ -1,26 +1,17 @@
 package app
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
+	"github.com/temaxuck/WUR/service.ebooks/config"
+	"github.com/temaxuck/WUR/service.ebooks/internal/db"
+	"github.com/temaxuck/WUR/service.ebooks/internal/rest"
 )
 
-func pingRoute(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Hello, World!",
-	})
-}
-
-func panicRoute(c *gin.Context) {
-	panic("foo!")
-}
-
-func Run() {
+func Run(cfg config.Config) {
 	router := gin.Default()
+	dbHandler := db.Init(cfg.PostgresURL)
 
-	router.GET("/ping", pingRoute)
-	router.GET("/panic", panicRoute)
+	rest.RegisterRoutes(router, dbHandler)
 
-	router.Run()
+	router.Run(cfg.GetAddress())
 }
