@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log"
 
+	"github.com/temaxuck/WUR/service.ebooks/internal/constants"
 	"github.com/temaxuck/WUR/service.ebooks/pkg/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -15,8 +16,8 @@ func Migrate(db *gorm.DB) error {
 		BEGIN
 		IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'book_file_format') THEN 
 			CREATE TYPE book_file_format AS ENUM(
-			'LRF', 'LRX', 'DJVU', 'EPUB', 'FB2', 'PDF', 'IBOOKS', 'AZW', 'MOBI', 'PDB', 'TXT', 'RTF'
-			);
+		` + constants.GetBookFileFormats(true) +
+			`
 		END IF;
 		END$$;`,
 	)

@@ -100,6 +100,14 @@ func (h Handler) UploadBookFile(ctx *gin.Context) {
 			gin.H{"message": "Filesize is too large. Max allowed filesize 1 GB."},
 		)
 		return
+	case exceptions.UnknownFileFormat:
+		ctx.AbortWithStatusJSON(
+			http.StatusBadRequest,
+			gin.H{
+				"message": "Restricted file format. Allowed file formats are:" +
+					constants.GetBookFileFormats(false) + "."},
+		)
+		return
 	}
 
 	path, err := CreateFilePath(fileHeader, constants.Books, fmt.Sprint(bookMeta.ID))
@@ -109,6 +117,18 @@ func (h Handler) UploadBookFile(ctx *gin.Context) {
 			http.StatusBadRequest,
 			gin.H{"message": "File with such name already exists."},
 		)
+		return
+	}
+
+	var bookFile models.BookFile
+
+	fileFormat, _ := GetFileBookFormat(fileHeader)
+	bookFile.BookMetaID = bookMeta.ID
+	bookFile.Filename = fileHeader.Filename
+	bookFile.FileFormat = fileFormat
+
+	if result := h.DB.Create(&bookFile); result.Error != nil {
+		ctx.AbortWithError(http.StatusInternalServerError, result.Error)
 		return
 	}
 
