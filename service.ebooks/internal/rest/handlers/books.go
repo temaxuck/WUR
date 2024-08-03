@@ -1,10 +1,14 @@
 package handlers
 
 import (
+	"fmt"
+	"mime/multipart"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/temaxuck/WUR/service.ebooks/internal/constants"
+	"github.com/temaxuck/WUR/service.ebooks/internal/exceptions"
 	"github.com/temaxuck/WUR/service.ebooks/pkg/models"
 )
 
@@ -13,6 +17,8 @@ type CreateBookRequestBody struct {
 	Description     string `json:"description"`
 	PublicationDate string `json:"publication_date"`
 	AuthorID        uint   `json:"author_id"`
+	// Genres
+	// Tags
 	// Cover	string
 }
 
@@ -59,11 +65,64 @@ func (h Handler) CreateBook(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, &bookMeta)
 }
 
+type UploadBookFileRequestBody struct {
+	File *multipart.FileHeader `json:"file"`
+	// Image	string
+}
+
+func (h Handler) UploadBookFile(ctx *gin.Context) {
+	id := ctx.Param("id")
+	body := UploadBookFileRequestBody{}
+
+	if err := ctx.ShouldBind(&body); err != nil {
+		ctx.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	var bookMeta models.BookMeta
+	if result := h.DB.First(&bookMeta, id); result.Error != nil {
+		ctx.AbortWithError(http.StatusNotFound, result.Error)
+	}
+
+	fileHeader, getFileErr := ctx.FormFile("file")
+	if getFileErr != nil {
+		ctx.AbortWithStatusJSON(
+			http.StatusBadRequest,
+			gin.H{"message": "Couldn't load file."},
+		)
+		return
+	}
+
+	switch ValidateFile(fileHeader).(type) {
+	case exceptions.FileTooLargeError:
+		ctx.AbortWithStatusJSON(
+			http.StatusRequestEntityTooLarge,
+			gin.H{"message": "Filesize is too large. Max allowed filesize 1 GB."},
+		)
+		return
+	}
+
+	path, err := CreateFilePath(fileHeader, constants.Books, fmt.Sprint(bookMeta.ID))
+	switch err.(type) {
+	case exceptions.FileAlreadyExists:
+		ctx.AbortWithStatusJSON(
+			http.StatusBadRequest,
+			gin.H{"message": "File with such name already exists."},
+		)
+		return
+	}
+
+	ctx.SaveUploadedFile(fileHeader, path)
+	ctx.Status(http.StatusCreated)
+}
+
 type UpdateBookRequestBody struct {
 	Title           string `json:"title"`
 	Description     string `json:"description"`
 	PublicationDate string `json:"publication_date"`
 	AuthorID        uint   `json:"author_id"`
+	// Genres
+	// Tags
 	// Cover	string
 }
 

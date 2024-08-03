@@ -18,6 +18,7 @@ func RegisterRoutes(router *gin.Engine, db *gorm.DB) {
 	booksRoutes.GET("/:id", h.GetBook)
 	booksRoutes.PUT("/:id", h.UpdateBook)
 	booksRoutes.DELETE("/:id", h.DeleteBook)
+	booksRoutes.POST("/:id/upload", h.UploadBookFile)
 
 	authorsRoutes := router.Group("/authors")
 	authorsRoutes.POST("/", h.CreateAuthor)
@@ -25,4 +26,5 @@ func RegisterRoutes(router *gin.Engine, db *gorm.DB) {
 	authorsRoutes.GET("/:id", h.GetAuthor)
 	authorsRoutes.PUT("/:id", h.UpdateAuthor)
 	authorsRoutes.DELETE("/:id", h.DeleteAuthor)
+
 }

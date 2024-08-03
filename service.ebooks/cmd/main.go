@@ -8,9 +8,9 @@ import (
 )
 
 func main() {
-	var cfg config.Config
+	cfg, err := config.GetConfig()
 
-	if err := cfg.LoadConfig(); err != nil {
+	if err != nil {
 		log.Fatalln(err)
 	}
 

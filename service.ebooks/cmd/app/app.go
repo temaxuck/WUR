@@ -7,7 +7,7 @@ import (
 	"github.com/temaxuck/WUR/service.ebooks/internal/rest"
 )
 
-func Run(cfg config.Config) {
+func Run(cfg *config.Config) {
 	router := gin.Default()
 	dbHandler := db.Init(cfg.PostgresURL)
 
