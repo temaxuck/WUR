@@ -8,3 +8,4 @@ At this point, it is not intended to be deployed to the Internet, but rather to 
 
 - Written in [Golang](https://go.dev/)
 - Used [Gin framework](https://github.com/gin-gonic/gin)
+- Used [GORM ORM](https://gorm.io/)
