@@ -16,7 +16,7 @@ func Migrate(db *gorm.DB) error {
 		BEGIN
 		IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'book_file_format') THEN 
 			CREATE TYPE book_file_format AS ENUM(
-		` + constants.GetBookFileFormats(true) +
+		` + constants.GetBookFileFormatsStr(true) + ");" +
 			`
 		END IF;
 		END$$;`,

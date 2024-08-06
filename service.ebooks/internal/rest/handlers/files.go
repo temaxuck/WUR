@@ -1,5 +1,6 @@
 // TODO: Use repository pattern to implement
 // different file storage systems (like local storage, S3, etc)
+// TODO: Think about moving these functions to utils
 
 package handlers
 
@@ -17,15 +18,10 @@ import (
 func GetFileBookFormat(
 	fileHeader *multipart.FileHeader,
 ) (constants.BookFileFormat, exceptions.EbooksError) {
-	filename := fileHeader.Filename
-	extension := filepath.Ext(filename)
-	if len(extension) > 0 {
-		extension = extension[1:]
-	}
+	extension := GetFileExtension(fileHeader)
 	bookFileFormat, ok := constants.ParseBookFileFormat(extension)
 	if !ok {
 		return bookFileFormat, exceptions.UnknownFileFormat{
-			FileName:      filename,
 			FileExtension: extension,
 		}
 	}
@@ -33,8 +29,20 @@ func GetFileBookFormat(
 	return bookFileFormat, nil
 }
 
+func GetFileExtension(
+	fileHeader *multipart.FileHeader,
+) string {
+	filename := fileHeader.Filename
+	extension := filepath.Ext(filename)
+	if len(extension) > 0 {
+		extension = extension[1:]
+	}
+	return extension
+}
+
 func ValidateFile(
 	fileHeader *multipart.FileHeader,
+	validFileFormats []string,
 ) exceptions.EbooksError {
 	cfg, _ := config.GetConfig()
 	maxFileSize := cfg.MaxFileSize
@@ -46,12 +54,10 @@ func ValidateFile(
 		}
 	}
 
-	// TODO: accept either allowed file extensions parameter
-	// or enum upload type and validate file extension based
-	// on the parameter value
-	_, err := GetFileBookFormat(fileHeader)
-	if err != nil {
-		return err
+	extension := GetFileExtension(fileHeader)
+
+	if !utils.ContainsStr(validFileFormats, extension) {
+		return exceptions.UnknownFileFormat{FileExtension: extension}
 	}
 
 	return nil

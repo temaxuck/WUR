@@ -93,7 +93,7 @@ func (h Handler) UploadBookFile(ctx *gin.Context) {
 		return
 	}
 
-	switch ValidateFile(fileHeader).(type) {
+	switch ValidateFile(fileHeader, constants.GetBookFileFormats()).(type) {
 	case exceptions.FileTooLargeError:
 		ctx.AbortWithStatusJSON(
 			http.StatusRequestEntityTooLarge,
@@ -105,7 +105,7 @@ func (h Handler) UploadBookFile(ctx *gin.Context) {
 			http.StatusBadRequest,
 			gin.H{
 				"message": "Restricted file format. Allowed file formats are:" +
-					constants.GetBookFileFormats(false) + "."},
+					constants.GetBookFileFormatsStr(false) + "."},
 		)
 		return
 	}
@@ -164,6 +164,7 @@ func (h Handler) UpdateBook(ctx *gin.Context) {
 
 	bookMeta.Title = body.Title
 	bookMeta.Description = body.Description
+	// TODO: Move parse mode to config
 	pubDate, _ := time.Parse("02.01.2006", body.PublicationDate)
 	bookMeta.PublicationDate = pubDate
 

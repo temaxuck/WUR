@@ -25,6 +25,5 @@ type FileDoNotExist struct {
 
 type UnknownFileFormat struct {
 	EbooksError
-	FileName      string
 	FileExtension string
 }

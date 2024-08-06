@@ -37,7 +37,7 @@ const (
 )
 
 var (
-	book_file_formats = map[string]BookFileFormat{
+	bookFileFormats = map[string]BookFileFormat{
 		"LRF":    LRF,
 		"LRX":    LRX,
 		"DJVU":   DJVU,
@@ -54,17 +54,55 @@ var (
 )
 
 func ParseBookFileFormat(f string) (BookFileFormat, bool) {
-	result, ok := book_file_formats[strings.ToUpper(f)]
+	result, ok := bookFileFormats[strings.ToUpper(f)]
 	return result, ok
 }
 
-func GetBookFileFormats(shouldEncloseInQuotes bool) string {
-	result := ""
+var imageFormats = []string{
+	"PNG", "JPG", "JPEG", "WEBP",
+}
 
-	mapLen := len(book_file_formats)
+func GetImageFormats() []string {
+	return imageFormats
+}
+
+func GetImageFormatsStr(shouldEncloseInQuotes bool) string {
+	result := ""
+	length := len(imageFormats)
 	i := 0
 
-	for k := range book_file_formats {
+	for _, v := range imageFormats {
+		if shouldEncloseInQuotes {
+			result += "'" + v + "'"
+		} else {
+			result += v
+		}
+		if i != length-1 {
+			result += ", "
+		}
+		i++
+	}
+
+	return result
+}
+
+func GetBookFileFormats() []string {
+	var keys []string
+
+	for k := range bookFileFormats {
+		keys = append(keys, k)
+	}
+
+	return keys
+}
+
+func GetBookFileFormatsStr(shouldEncloseInQuotes bool) string {
+	result := ""
+
+	mapLen := len(bookFileFormats)
+	i := 0
+
+	for k := range bookFileFormats {
 		if shouldEncloseInQuotes {
 			result += "'" + k + "'"
 		} else {
